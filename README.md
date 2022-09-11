@@ -28,16 +28,22 @@ docker images
 # To run the container
 docker run -d -p 5001:5000 --name pytodo-container techierishi/pytodo:latest
 
+# Open following URL in browser
+http://127.0.0.1:5001/
+
 # Clean up
-docker rm $(docker stop pytodo-container) && docker rmi techierishi/pytodo:latest
+docker rm $(docker stop pytodo-container) && docker rmi --force techierishi/pytodo:latest
+
 
 ```
+
+<hr>
 
 #### PATH 3 (Run in local k8s cluster using `kind`)
 
 ```bash
 
-# Install kind [Skip if done]
+# Install kind for creating k8s cluster. Docker is prerequisite. [Skip if done]
 brew install kind
 
 # Create cluster
@@ -62,10 +68,12 @@ kubectl logs <pod-name>
 # Expose service to host machine
 kubectl port-forward service/pytodo-service 5001:5000
 
+# Open following URL in browser
+http://127.0.0.1:5001/
+
 # Delete cluster
 kind delete cluster --name pytodo-cluster 
 ```
+<hr>
 
-
-
-
+#### PATH 4 (CI-CD using Jenkins)

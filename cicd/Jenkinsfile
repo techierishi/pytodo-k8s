@@ -1,0 +1,48 @@
+node {
+    env.DOCKER_PASS = '***'
+    env.DOCKER_USER = '***'
+    
+    stage('Preparation') {
+        git 'https://github.com/techierishi/pytodo-k8s.git'
+        sh '''
+        pwd
+        ls -lrt
+        '''
+    }
+    stage('Clean Up'){
+        sh '''
+        pwd
+        ls -lrt
+        docker stop pytodo-container || true
+        docker rm pytodo-container || true
+        docker rmi --force techierishi/pytodo:latest || true
+        '''
+    }
+    // stage('Build') {
+    //     sh '''
+    //     pwd
+    //     ls -lrt
+    //     docker login -u $DOCKER_USER -p $DOCKER_PASS
+    //     docker build --rm -t techierishi/pytodo:latest .
+    //     docker push techierishi/pytodo
+    //     docker images
+    //     '''
+    // }
+    stage('Deploy') {
+        sh '''
+        pwd
+        ls -lrt
+        kubectl config set-context pytodo-cluster
+        kubectl cluster-info --context pytodo-cluster
+
+        kubectl get nodes
+
+        kubectl apply -f cicd/yamls/config.yaml
+        kubectl apply -f cicd/yamls/webapp.yaml
+
+        kubectl get pods
+
+        kubectl port-forward service/pytodo-service 5001:5000
+        '''
+    }
+}
