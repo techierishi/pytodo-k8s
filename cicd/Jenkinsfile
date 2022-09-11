@@ -35,10 +35,12 @@ node {
         kubectl config set-context pytodo-cluster
 
         kubectl get nodes
-
+        kubectl get deployment 
+        kubectl delete deployment pytodo-deployment || true
+        kubectl get deployment 
         kubectl apply -f cicd/yamls/config.yaml
         kubectl apply -f cicd/yamls/webapp.yaml
-        sleep 5 
+        sleep 20 
         kubectl get pods
 
         kubectl port-forward service/pytodo-service 5001:5000
