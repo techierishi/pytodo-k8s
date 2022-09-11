@@ -77,3 +77,4 @@ kind delete cluster --name pytodo-cluster
 <hr>
 
 #### PATH 4 (CI-CD using Jenkins)
+Use `cidcd/Jenkinsfile` to create the pipeline and run it
