@@ -1,7 +1,4 @@
 node {
-    env.DOCKER_PASS = '***'
-    env.DOCKER_USER = '***'
-    
     stage('Preparation') {
         git 'https://github.com/techierishi/pytodo-k8s.git'
         sh '''
@@ -9,7 +6,7 @@ node {
         ls -lrt
         '''
     }
-    stage('Clean Up'){
+    stage('Clean Up') {
         sh '''
         pwd
         ls -lrt
@@ -19,14 +16,16 @@ node {
         '''
     }
     stage('Build') {
-        sh '''
-        pwd
-        ls -lrt
-        docker login -u $DOCKER_USER -p $DOCKER_PASS
-        docker build --rm -t techierishi/pytodo:latest .
-        docker push techierishi/pytodo
-        docker images
-        '''
+        withCredentials([string(credentialsId: 'DOCKER_SECRET', variable: 'DOCKER_PASS')]) {
+            sh '''
+            pwd
+            ls -lrt
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker build --rm -t techierishi/pytodo:latest .
+            docker push techierishi/pytodo
+            docker images
+            '''
+        }
     }
     stage('Deploy') {
         sh '''
@@ -35,12 +34,12 @@ node {
         kubectl config set-context pytodo-cluster
 
         kubectl get nodes
-        kubectl get deployment 
+        kubectl get deployment
         kubectl delete deployment pytodo-deployment || true
-        kubectl get deployment 
+        kubectl get deployment
         kubectl apply -f cicd/yamls/config.yaml
         kubectl apply -f cicd/yamls/webapp.yaml
-        sleep 20 
+        sleep 20
         kubectl get pods
 
         kubectl port-forward service/pytodo-service 5001:5000
